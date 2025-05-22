@@ -1,0 +1,315 @@
+{
+  "name": "Telegram AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        0
+      ],
+      "id": "b4cb6f1f-aa7f-4f12-854b-a89be114a4cc",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "epjloqihj56qhf65bj7tds5i5s@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Formula 1"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        40,
+        0
+      ],
+      "id": "0b87552a-21c7-4928-b1d5-75f70c0f7655",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "iDwa7j5K5ekia6I9",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        360
+      ],
+      "id": "a205ba97-82cf-413f-98ce-013337149f06",
+      "name": "Telegram Trigger",
+      "webhookId": "91f08514-5263-4950-8a53-9412042a037d",
+      "credentials": {
+        "telegramApi": {
+          "id": "7Zd3wyo18ERhzGuo",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=fetch data from supabase according to the use case of user"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        40,
+        360
+      ],
+      "id": "2e3c80d3-b5f8-4358-bf8f-16cce36854ce",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        68,
+        580
+      ],
+      "id": "e69fc953-8fb5-4b53-859d-f76ddf669f22",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FCAInzpYhv0wVmYF",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        188,
+        580
+      ],
+      "id": "391e8252-3c18-474a-a45d-1a2a2a64c914",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "replyMarkup": "=",
+        "forceReply": {},
+        "replyKeyboardOptions": {},
+        "replyKeyboardRemove": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        360
+      ],
+      "id": "84aa8cee-33d4-4abf-a733-efa4306822de",
+      "name": "Telegram",
+      "webhookId": "2843a79a-3862-43e0-9197-fcd4d39356a9",
+      "credentials": {
+        "telegramApi": {
+          "id": "7Zd3wyo18ERhzGuo",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        300,
+        580
+      ],
+      "id": "634b40d3-17e2-47d4-a109-e7e8782acfae",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "7X135UdeSbxHV2tG",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Semester",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        500,
+        580
+      ],
+      "id": "ca59a757-21ef-40e7-a0d5-2d6f4e11a1e8",
+      "name": "Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "U57mtC3XXtYgtwtR",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 292825296,
+          "message": {
+            "message_id": 10,
+            "from": {
+              "id": 1349677532,
+              "is_bot": false,
+              "first_name": "Jasmine",
+              "language_code": "en"
+            },
+            "chat": {
+              "id": 1349677532,
+              "first_name": "Jasmine",
+              "type": "private"
+            },
+            "date": 1747824059,
+            "text": "How's the weather today"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        []
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ff2230e7-4f02-40dc-b3cd-e7150f4e8b04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6aa02755ad1d416303b53b18688d103d8ebdd3e82b23f51adb693573308422"
+  },
+  "id": "ZVdnbWawTE3se9cH",
+  "tags": []
+}
